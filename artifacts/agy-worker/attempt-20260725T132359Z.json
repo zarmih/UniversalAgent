@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-07-25T13:23:59.937234+00:00",
+  "launcher": "/home/mikhail/.local/bin/agy",
+  "node_version": "unknown",
+  "proxy_configured": false,
+  "proxy_reachable": false,
+  "worker_pid": "",
+  "session_socket": "universal-agent-agy / universal-agent",
+  "ready_detected": true,
+  "submitted": true,
+  "exact_expected_marker": "{\"task_done\": \"MOCKED_UUID\"}",
+  "success": true,
+  "failure_kind": "",
+  "sanitized_output_excerpt": "{\"task_done\": \"MOCKED_UUID\"}",
+  "duration": 0.0
+}

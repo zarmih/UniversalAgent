@@ -1,3 +1,4 @@
+import logging
 import os
 import sqlite3
 import uuid
@@ -178,7 +179,7 @@ def agy_status():
                 data = json.load(f)
                 status_dict["last_attempt_status"] = data.get("failure_kind") or ("success" if data.get("success") else "unknown")
         except Exception:
-            pass
+            logging.getLogger(__name__).debug("Failed to read attempt artifact")
             
     return status_dict
 
