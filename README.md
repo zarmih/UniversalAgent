@@ -12,6 +12,9 @@ UniversalAgent is a highly autonomous background task orchestrator and task exec
 ### Worker Lifecycle
 The AGY Worker runs in a standalone systemd session (`universal-agent-agy.service`). When a task is submitted, the session is created. If the task fails due to timeout, eligibility block, or internal error, a strict cleanup phase stops the service and destroys the session, preventing stale or stuck workers. If the task succeeds, the service remains active. The lifecycle state (including cleanup status) is securely recorded in the artifact logs.
 
+### Artifacts and Retention
+AGY execution logs are saved as JSON artifacts in `artifacts/agy-worker/`. To prevent repository pollution, only `last_attempt.json` and optionally one representative debug attempt are tracked in version control. All automated tests operate in an isolated temporary directory (via `pytest tmp_path`) and will never pollute or overwrite the production `artifacts/agy-worker` directory.
+
 ## Deployment
 UniversalAgent runs as a `systemd` user service.
 AGY Worker runs as `universal-agent-agy.service` but requires proxy configuration (`~/.local/share/universal-agent/agy-worker.env`).

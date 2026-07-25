@@ -25,12 +25,12 @@ def sanitize_output(text: str) -> str:
     return text
 
 class AgyAdapter:
-    def __init__(self):
+    def __init__(self, artifacts_dir: str | None = None):
         self.enabled = config.enable_agy_submit
         self.socket = "universal-agent"
         self.session = "universal-agent-agy"
         self.lock_file = "/tmp/agy_worker.lock"
-        self.artifacts_dir = "/mnt/SDD_1.7_TB/UniversalAgent/artifacts/agy-worker"
+        self.artifacts_dir = artifacts_dir or "/mnt/SDD_1.7_TB/UniversalAgent/artifacts/agy-worker"
         os.makedirs(self.artifacts_dir, exist_ok=True)
         self.last_attempt_file = os.path.join(self.artifacts_dir, "last_attempt.json")
 

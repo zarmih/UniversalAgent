@@ -4,14 +4,14 @@ from universal_agent.core.workers.agy import AgyAdapter
 
 
 def test_agy_disabled_feature_flag():
-    adapter = AgyAdapter()
+    adapter = AgyAdapter(artifacts_dir=str(tmp_path))
     adapter.enabled = False
     res = adapter.submit("test")
     assert res["status"] == "error"
     assert "disabled" in res["error"]
 
 def test_agy_require_approval(monkeypatch):
-    adapter = AgyAdapter()
+    adapter = AgyAdapter(artifacts_dir=str(tmp_path))
     adapter.enabled = True
     # We just ensure it doesn't blow up; logic is in caller
     assert True
@@ -25,7 +25,7 @@ def test_agy_recursive_guard(monkeypatch):
         mock_res.stdout = "universal-agent-agy\n"
         mock_run.return_value = mock_res
         
-        adapter = AgyAdapter()
+        adapter = AgyAdapter(artifacts_dir=str(tmp_path))
         adapter.enabled = True
         res = adapter.submit("test")
         
@@ -38,7 +38,7 @@ def test_agy_status_inactive(monkeypatch):
         mock_res.returncode = 1 # has-session fails
         mock_run.return_value = mock_res
         
-        adapter = AgyAdapter()
+        adapter = AgyAdapter(artifacts_dir=str(tmp_path))
         assert adapter.status() == "inactive"
         
         # busy check
@@ -50,7 +50,7 @@ def test_agy_status_inactive(monkeypatch):
             assert adapter.status() == "active"
 
 def test_agy_submit_busy(monkeypatch):
-    adapter = AgyAdapter()
+    adapter = AgyAdapter(artifacts_dir=str(tmp_path))
     adapter.enabled = True
     with patch.object(adapter, "ensure_session", return_value=True), patch.object(adapter, "status", return_value="busy"):
         res = adapter.submit("test")
@@ -58,7 +58,7 @@ def test_agy_submit_busy(monkeypatch):
         assert "busy" in res["error"]
 
 def test_agy_submit_timeout(monkeypatch):
-    adapter = AgyAdapter()
+    adapter = AgyAdapter(artifacts_dir=str(tmp_path))
     adapter.enabled = True
     with patch.object(adapter, "ensure_session", return_value=True), patch.object(adapter, "status", return_value="active"), patch("subprocess.run"), patch.object(adapter, "get_output", return_value="no marker here"), patch("time.sleep"):
         res = adapter.submit("test", timeout=0.1)
@@ -66,7 +66,7 @@ def test_agy_submit_timeout(monkeypatch):
         assert "Timeout" in res["error"]
 
 def test_agy_cancel(monkeypatch):
-    adapter = AgyAdapter()
+    adapter = AgyAdapter(artifacts_dir=str(tmp_path))
     with patch("subprocess.run") as mock_run, patch("os.remove") as mock_rm, patch("os.path.exists", return_value=True):
         adapter.cancel()
         mock_run.assert_called()

@@ -61,7 +61,7 @@ def test_llm_mock():
     assert worker.model_name == "local-llama"
 
 def test_agy_mock():
-    worker = AgyAdapter()
+    worker = AgyAdapter(artifacts_dir=str(tmp_path))
     # It should be disabled by default config
     assert worker.enabled == False
     res = worker.submit("test", require_approval=False)

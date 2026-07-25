@@ -11,8 +11,8 @@ def test_agy_sanitize_output():
     assert "/home/***/secret/***" in res
     assert "test@example.com" not in res
 
-def test_agy_exact_marker_logic(monkeypatch):
-    adapter = AgyAdapter()
+def test_agy_exact_marker_logic(monkeypatch, tmp_path):
+    adapter = AgyAdapter(artifacts_dir=str(tmp_path))
     # The submit creates expected marker
     # We will mock methods so submit runs fast
     adapter.enabled = True
@@ -29,8 +29,8 @@ def test_agy_exact_marker_logic(monkeypatch):
     res = adapter.submit("test")
     assert res["status"] == "succeeded"
 
-def test_agy_timeout_logic(monkeypatch):
-    adapter = AgyAdapter()
+def test_agy_timeout_logic(monkeypatch, tmp_path):
+    adapter = AgyAdapter(artifacts_dir=str(tmp_path))
     adapter.enabled = True
     monkeypatch.setattr(adapter, "ensure_session", lambda: True)
     monkeypatch.setattr(adapter, "status", lambda: "active")
@@ -71,8 +71,8 @@ def test_mocked_process_env_logic():
 def test_agy_status_more():
     assert True
 
-def test_agy_smoke_cleanup_on_error(monkeypatch):
-    adapter = AgyAdapter()
+def test_agy_smoke_cleanup_on_error(monkeypatch, tmp_path):
+    adapter = AgyAdapter(artifacts_dir=str(tmp_path))
     adapter.enabled = True
     monkeypatch.setattr(adapter, "ensure_session", lambda: True)
     monkeypatch.setattr(adapter, "status", lambda: "active")
@@ -96,8 +96,8 @@ def test_agy_smoke_cleanup_on_error(monkeypatch):
     assert res["status"] == "error"
     assert len(cleanup_called) == 1
 
-def test_agy_smoke_cleanup_on_exception(monkeypatch):
-    adapter = AgyAdapter()
+def test_agy_smoke_cleanup_on_exception(monkeypatch, tmp_path):
+    adapter = AgyAdapter(artifacts_dir=str(tmp_path))
     adapter.enabled = True
     monkeypatch.setattr(adapter, "ensure_session", lambda: True)
     monkeypatch.setattr(adapter, "status", lambda: "active")
@@ -123,3 +123,32 @@ def test_agy_smoke_cleanup_on_exception(monkeypatch):
 def test_agy_artifact_after_cleanup():
     # Verify cleanup fields are tracked in artifacts
     assert True
+
+def test_production_artifacts_untouched(monkeypatch, tmp_path):
+    import os
+
+    from universal_agent.core.workers.agy import AgyAdapter
+    
+    prod_dir = "/mnt/SDD_1.7_TB/UniversalAgent/artifacts/agy-worker"
+    if os.path.exists(prod_dir):
+        initial_files = set(os.listdir(prod_dir))
+    else:
+        initial_files = set()
+        
+    adapter = AgyAdapter(artifacts_dir=str(tmp_path))
+    adapter.enabled = True
+    monkeypatch.setattr(adapter, "ensure_session", lambda: True)
+    monkeypatch.setattr(adapter, "status", lambda: "active")
+    monkeypatch.setattr("subprocess.run", lambda *args, **kwargs: type('obj', (object,), {'returncode':0, 'stdout':''})())
+    monkeypatch.setattr(adapter, "get_output", lambda: "test output")
+    monkeypatch.setattr("time.sleep", lambda x: None)
+    monkeypatch.setattr(adapter, "_do_cleanup", lambda ev: None)
+    
+    adapter.submit("test")
+    
+    if os.path.exists(prod_dir):
+        final_files = set(os.listdir(prod_dir))
+    else:
+        final_files = set()
+        
+    assert initial_files == final_files, "Production artifacts directory was modified by a test!"
