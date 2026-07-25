@@ -5,10 +5,17 @@ from typing import Annotated, Any, TypedDict
 class AgentState(TypedDict):
     task_id: str
     goal: str
-    status: str # queued, planning, waiting_for_approval, executing, checking, repairing, blocked, succeeded, failed, cancelled
+    workspace_id: str
+    
+    # Track status transitions
+    status: str
+    permission_tier: str
+    
     plan: list[str]
-    current_step: int
-    evidence: list[dict[str, Any]]
-    errors: list[str]
-    # Reducers for parallel modifications
-    messages: Annotated[list[dict[str, Any]], operator.add]
+    evidence: Annotated[list[dict[str, Any]], operator.add]
+    
+    # Used for loops
+    repair_attempts: int
+    worker: str | None
+    current_action: str | None
+    result: str | None

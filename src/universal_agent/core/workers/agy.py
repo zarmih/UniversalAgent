@@ -1,12 +1,19 @@
 import logging
 
+from ..config import config
+
 logger = logging.getLogger(__name__)
 
-class AGYAdapter:
-    def __init__(self, endpoint="http://127.0.0.1:8000"):
-        self.endpoint = endpoint
+class AgyAdapter:
+    def __init__(self):
+        self.enabled = config.enable_agy_submit
 
-    def submit_task(self, task_definition: str):
-        # Placeholder for communicating with the AGY worker
-        logger.info(f"Submitting task to AGY bridge at {self.endpoint}")
-        return {"status": "submitted", "bridge": self.endpoint}
+    def submit_task(self, goal: str):
+        if not self.enabled:
+            return {"status": "error", "error": "AGY submit is disabled by configuration to prevent recursion"}
+        
+        # Mock actual submit logic for this MVP to avoid deep side-effects during tests
+        return {"status": "succeeded", "result": "mocked AGY result"}
+
+    def check_health(self):
+        return {"status": "ok", "message": "AGY adapter is healthy"}
