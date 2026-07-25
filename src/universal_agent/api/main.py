@@ -16,6 +16,7 @@ from ..core.models import (
     TaskEvent,
     TaskRecord,
 )
+from ..core.workers.agy import AgyAdapter
 
 app = FastAPI(title="Universal Agent API")
 
