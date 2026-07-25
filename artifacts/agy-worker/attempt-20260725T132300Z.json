@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-07-25T13:23:00.522814+00:00",
+  "launcher": "/home/mikhail/.local/bin/agy",
+  "node_version": "unknown",
+  "proxy_configured": false,
+  "proxy_reachable": false,
+  "worker_pid": "",
+  "session_socket": "universal-agent-agy / universal-agent",
+  "ready_detected": true,
+  "submitted": true,
+  "exact_expected_marker": "{\"task_done\": \"f21e79c9162741ccb39e1ea2ebf6cbea\"}",
+  "success": false,
+  "failure_kind": "timeout",
+  "sanitized_output_excerpt": "no marker here",
+  "duration": 0.1
+}

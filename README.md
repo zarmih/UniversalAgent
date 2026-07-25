@@ -13,4 +13,4 @@ UniversalAgent is a highly autonomous background task orchestrator and task exec
 UniversalAgent runs as a `systemd` user service.
 AGY Worker runs as `universal-agent-agy.service` but requires proxy configuration (`~/.local/share/universal-agent/agy-worker.env`).
 
-**NOTE:** Secondary AGY worker might fail with "Eligibility check failed: Your current account is not eligible for Antigravity" based on region or auth constraints. If so, leave the worker disabled.
+**NOTE:** The AGY worker proxy has been fixed and successfully routes traffic. However, secondary AGY workers may fail with "Eligibility check failed". This is an auth/account-level block, not a network error. If this happens, leave the worker disabled. The real status of attempts can be checked using the CLI command `ua agy-doctor` or `ua agy-last-attempt` which reads the sanitized attempt artifact.

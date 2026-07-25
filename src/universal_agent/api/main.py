@@ -134,8 +134,71 @@ def cancel_task(task_id: str):
 
 @app.get("/agy/status")
 def agy_status():
+    import json
+    import os
+    import subprocess
+
+    from ..core.workers.agy import AgyAdapter
+    
     adapter = AgyAdapter()
-    return {"status": adapter.status()}
+    
+    status_dict = {
+        "configured": adapter.enabled,
+        "proxy_configured": False,
+        "proxy_reachable": False,
+        "service_active": False,
+        "session_exists": adapter.ensure_session(),
+        "ready": adapter.status() == "active",
+        "last_attempt_status": "none",
+        "last_attempt_artifact": adapter.last_attempt_file
+    }
+    
+    # Check proxy configured
+    env_file = "/home/mikhail/.local/share/universal-agent/agy-worker.env"
+    if os.path.exists(env_file):
+        with open(env_file, "r") as f:
+            content = f.read()
+            if "HTTP_PROXY" in content or "http_proxy" in content:
+                status_dict["proxy_configured"] = True
+                
+    # Check proxy reachable
+    res = subprocess.run(["timeout", "2s", "curl", "-I", "-s", "-x", "http://127.0.0.1:10808", "https://google.com"], capture_output=True)
+    if res.returncode == 0:
+        status_dict["proxy_reachable"] = True
+        
+    # Check service active
+    res = subprocess.run(["systemctl", "--user", "is-active", "universal-agent-agy.service"], capture_output=True, text=True)
+    if res.stdout.strip() == "active":
+        status_dict["service_active"] = True
+        
+    # Check last attempt
+    if os.path.exists(adapter.last_attempt_file):
+        try:
+            with open(adapter.last_attempt_file, "r") as f:
+                data = json.load(f)
+                status_dict["last_attempt_status"] = data.get("failure_kind") or ("success" if data.get("success") else "unknown")
+        except Exception:
+            pass
+            
+    return status_dict
+
+@app.get("/agy/doctor")
+def agy_doctor():
+    return agy_status()
+
+@app.get("/agy/last_attempt")
+def agy_last_attempt():
+    import json
+    import os
+
+    from fastapi.responses import JSONResponse
+
+    from ..core.workers.agy import AgyAdapter
+    adapter = AgyAdapter()
+    if os.path.exists(adapter.last_attempt_file):
+        with open(adapter.last_attempt_file, "r") as f:
+            return JSONResponse(json.load(f))
+    return JSONResponse({"error": "No attempt recorded"}, status_code=404)
 
 @app.post("/agy/start")
 def agy_start():

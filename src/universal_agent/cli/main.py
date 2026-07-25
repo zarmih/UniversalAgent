@@ -1,4 +1,5 @@
 import argparse
+import json
 import sys
 import time
 
@@ -41,6 +42,8 @@ def main():
     cancel_parser.add_argument("task_id", type=str)
 
     subparsers.add_parser("agy-status")
+    subparsers.add_parser("agy-doctor")
+    subparsers.add_parser("agy-last-attempt")
     subparsers.add_parser("agy-start")
     subparsers.add_parser("agy-stop")
     agy_submit_parser = subparsers.add_parser("agy-submit")
@@ -96,6 +99,12 @@ def main():
         elif args.command == "agy-status":
             r = requests.get(f"{API_URL}/agy/status")
             print(r.json())
+        elif args.command == "agy-doctor":
+            r = requests.get(f"{API_URL}/agy/doctor")
+            print(json.dumps(r.json(), indent=2))
+        elif args.command == "agy-last-attempt":
+            r = requests.get(f"{API_URL}/agy/last_attempt")
+            print(json.dumps(r.json(), indent=2))
         elif args.command == "agy-start":
             r = requests.post(f"{API_URL}/agy/start")
             print(r.json())

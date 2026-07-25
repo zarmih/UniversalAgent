@@ -52,29 +52,22 @@ def test_agy_status_inactive(monkeypatch):
 def test_agy_submit_busy(monkeypatch):
     adapter = AgyAdapter()
     adapter.enabled = True
-    with patch.object(adapter, "ensure_session", return_value=True):
-        with patch.object(adapter, "status", return_value="busy"):
-            res = adapter.submit("test")
-            assert res["status"] == "error"
-            assert "busy" in res["error"]
+    with patch.object(adapter, "ensure_session", return_value=True), patch.object(adapter, "status", return_value="busy"):
+        res = adapter.submit("test")
+        assert res["status"] == "error"
+        assert "busy" in res["error"]
 
 def test_agy_submit_timeout(monkeypatch):
     adapter = AgyAdapter()
     adapter.enabled = True
-    with patch.object(adapter, "ensure_session", return_value=True):
-        with patch.object(adapter, "status", return_value="active"):
-            with patch("subprocess.run"):
-                with patch.object(adapter, "get_output", return_value="no marker here"):
-                    # Mock time.sleep to avoid hanging
-                    with patch("time.sleep"):
-                        res = adapter.submit("test", timeout=0.1)
-                        assert res["status"] == "error"
-                        assert "Timeout" in res["error"]
+    with patch.object(adapter, "ensure_session", return_value=True), patch.object(adapter, "status", return_value="active"), patch("subprocess.run"), patch.object(adapter, "get_output", return_value="no marker here"), patch("time.sleep"):
+        res = adapter.submit("test", timeout=0.1)
+        assert res["status"] == "error"
+        assert "Timeout" in res["error"]
 
 def test_agy_cancel(monkeypatch):
     adapter = AgyAdapter()
-    with patch("subprocess.run") as mock_run, patch("os.remove") as mock_rm:
-        with patch("os.path.exists", return_value=True):
-            adapter.cancel()
-            mock_run.assert_called()
-            mock_rm.assert_called_with(adapter.lock_file)
+    with patch("subprocess.run") as mock_run, patch("os.remove") as mock_rm, patch("os.path.exists", return_value=True):
+        adapter.cancel()
+        mock_run.assert_called()
+        mock_rm.assert_called_with(adapter.lock_file)
