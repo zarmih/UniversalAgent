@@ -1,22 +1,49 @@
-# UniversalAgent
+# UniversalAgent 🚀
 
-UniversalAgent is a highly autonomous background task orchestrator and task execution framework.
+UniversalAgent — это локальный оркестратор задач (MVP), построенный на базе **LangGraph**, **FastAPI** и **SQLite**. Он обеспечивает надёжное выполнение сложных и потенциально опасных задач в изолированных средах (workers) с механизмом ручного подтверждения (Approval Policy) и сбором доказательств (Evidence).
 
-## Features
-- **LangGraph Checkpointer**: Uses SQLite checkpointer for persisting states.
-- **Workers**:
-  - `AgyAdapter`: Proxy-aware adapter to safely run AGY tasks in a separate isolated `tmux` session.
-  - `LLMWorker`: OpenAI-compatible wrapper to use local LLM instances (e.g. Ollama).
-  - `OpenHands`: Future integration for sandbox task execution.
+⚠️ **Статус:** Working Local Orchestrator / MVP. Проект активно развивается.
 
-### Worker Lifecycle
-The AGY Worker runs in a standalone systemd session (`universal-agent-agy.service`). When a task is submitted, the session is created. If the task fails due to timeout, eligibility block, or internal error, a strict cleanup phase stops the service and destroys the session, preventing stale or stuck workers. If the task succeeds, the service remains active. The lifecycle state (including cleanup status) is securely recorded in the artifact logs.
+## Ключевые возможности
 
-### Artifacts and Retention
-AGY execution logs are saved as JSON artifacts in `artifacts/agy-worker/`. To prevent repository pollution, only `last_attempt.json` and optionally one representative debug attempt are tracked in version control. All automated tests operate in an isolated temporary directory (via `pytest tmp_path`) and will never pollute or overwrite the production `artifacts/agy-worker` directory.
+- 🛡️ **Изолированное выполнение (Workers):** Задачи выполняются в отдельных `tmux` сессиях с изоляцией окружения. 
+- 🚦 **Политика подтверждения (Approval Policy):** Опасные действия (например, запуск submit-команд, модификация файловой системы) могут быть настроены на запрос явного разрешения пользователя.
+- 💾 **Надёжность и состояние:** Все задачи, их статусы и логи хранятся в SQLite через механизмы LangGraph, что позволяет продолжать работу после перезапуска.
+- 🔍 **Доказательства (Evidence):** Сбор артефактов и логов выполнения.
+- 🔌 **API и CLI:** Полноценный REST API (FastAPI) и командный интерфейс.
 
-## Deployment
-UniversalAgent runs as a `systemd` user service.
-AGY Worker runs as `universal-agent-agy.service` but requires proxy configuration (`~/.local/share/universal-agent/agy-worker.env`).
+## Быстрый старт
 
-**NOTE:** The AGY worker proxy has been fixed and successfully routes traffic. However, secondary AGY workers may fail with "Eligibility check failed". This is an auth/account-level block, not a network error. If this happens, leave the worker disabled. The real status of attempts can be checked using the CLI command `ua agy-doctor` or `ua agy-last-attempt` which reads the sanitized attempt artifact.
+Убедитесь, что у вас установлен Python 3.12+ и `tmux`.
+
+```bash
+# Клонирование репозитория
+git clone https://github.com/zarmih/UniversalAgent.git
+cd UniversalAgent
+
+# Создание виртуального окружения
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Запуск локально
+python3 -m universal_agent.main
+
+# Проверка Health
+curl http://localhost:8765/health
+```
+
+Подробная инструкция по использованию, установке (через systemd) и типовым сценариям доступна в [docs/USAGE.md](docs/USAGE.md).
+
+## Документация
+
+- [Архитектура (ARCHITECTURE.md)](docs/ARCHITECTURE.md)
+- [Безопасность (SECURITY.md)](docs/SECURITY.md)
+- [Использование (USAGE.md)](docs/USAGE.md)
+- [Конфигурация (CONFIGURATION.md)](docs/CONFIGURATION.md)
+- [API (API.md)](docs/API.md)
+- [Диагностика (TROUBLESHOOTING.md)](docs/TROUBLESHOOTING.md)
+- [Roadmap (ROADMAP.md)](docs/ROADMAP.md)
+
+## Лицензия
+MIT License. См. файл [LICENSE](LICENSE) для подробностей.

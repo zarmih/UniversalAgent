@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-07-25T13:22:08Z",
+  "launch_id": "attempt-20260725T132208Z",
+  "pid": 302360,
+  "proxy_configured": false,
+  "eligibility_success": false,
+  "failure_kind": "eligibility_error",
+  "sanitized_output_excerpt": "...\nGoogle AI API - provider eligibility error... Cannot connect to generative language API.",
+  "cleanup_attempted": true,
+  "cleanup_verified_at": "2026-07-25T13:33:01Z",
+  "cleanup_verified_current_state": true
+}

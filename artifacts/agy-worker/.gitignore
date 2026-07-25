@@ -1,4 +1,0 @@
-# Ignore all attempt artifacts
-attempt-*.json
-# Keep last_attempt
-!last_attempt.json
