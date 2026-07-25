@@ -1,6 +1,7 @@
+
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Optional
+
 from universal_agent.core.graph import create_graph
 
 app = FastAPI(title="Universal Local Agent API")

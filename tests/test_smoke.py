@@ -1,5 +1,5 @@
-import pytest
 from universal_agent.core.graph import create_graph
+
 
 def test_smoke():
     graph = create_graph()

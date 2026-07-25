@@ -1,5 +1,5 @@
-import subprocess
 import logging
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +11,7 @@ class OpenHandsAdapter:
         try:
             res = subprocess.run("docker images | grep openhands", shell=True, capture_output=True, text=True)
             return [line for line in res.stdout.split('\n') if line]
-        except Exception as e:
+        except Exception:
             return []
 
     def check_health(self):
