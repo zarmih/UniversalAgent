@@ -15,6 +15,7 @@ class AppConfig(BaseModel):
     enable_agy_submit: bool = False
     enable_openhands_run: bool = False
     allow_external_network: bool = False
+    enable_llm: bool = True
 
 config = AppConfig()
 

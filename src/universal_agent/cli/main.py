@@ -40,6 +40,12 @@ def main():
     cancel_parser = subparsers.add_parser("cancel")
     cancel_parser.add_argument("task_id", type=str)
 
+    subparsers.add_parser("agy-status")
+    subparsers.add_parser("agy-start")
+    subparsers.add_parser("agy-stop")
+    agy_submit_parser = subparsers.add_parser("agy-submit")
+    agy_submit_parser.add_argument("goal", type=str)
+
     # Legacy alias
     submit_parser = subparsers.add_parser("submit")
     submit_parser.add_argument("goal", type=str)
@@ -86,6 +92,18 @@ def main():
             print(r.json())
         elif args.command == "cancel":
             r = requests.post(f"{API_URL}/tasks/{args.task_id}/cancel")
+            print(r.json())
+        elif args.command == "agy-status":
+            r = requests.get(f"{API_URL}/agy/status")
+            print(r.json())
+        elif args.command == "agy-start":
+            r = requests.post(f"{API_URL}/agy/start")
+            print(r.json())
+        elif args.command == "agy-stop":
+            r = requests.post(f"{API_URL}/agy/stop")
+            print(r.json())
+        elif args.command == "agy-submit":
+            r = requests.post(f"{API_URL}/agy/submit", json={"goal": args.goal})
             print(r.json())
         else:
             parser.print_help()

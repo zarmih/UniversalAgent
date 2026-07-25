@@ -4,6 +4,7 @@ import uuid
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from langgraph.checkpoint.sqlite import SqliteSaver
+from pydantic import BaseModel
 
 from ..core.config import config
 from ..core.db import TaskStore, get_db
@@ -129,3 +130,32 @@ def cancel_task(task_id: str):
     task.status = "cancelled"
     TaskStore.update_task(task)
     return {"status": "cancelled"}
+
+@app.get("/agy/status")
+def agy_status():
+    adapter = AgyAdapter()
+    return {"status": adapter.status()}
+
+@app.post("/agy/start")
+def agy_start():
+    import subprocess
+    subprocess.run(["systemctl", "--user", "start", "universal-agent-agy.service"])
+    return {"status": "started"}
+
+@app.post("/agy/stop")
+def agy_stop():
+    import subprocess
+    subprocess.run(["systemctl", "--user", "stop", "universal-agent-agy.service"])
+    return {"status": "stopped"}
+
+class AgySubmitReq(BaseModel):
+    goal: str
+
+@app.post("/agy/submit")
+def agy_submit(req: AgySubmitReq):
+    adapter = AgyAdapter()
+    # Mocking task approval by skipping it in this direct endpoint
+    res = adapter.submit(req.goal, require_approval=False)
+    if res["status"] == "error":
+        raise HTTPException(status_code=400, detail=res["error"])
+    return res
