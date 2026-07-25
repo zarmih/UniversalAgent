@@ -1,5 +1,6 @@
 import logging
 import os
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,22 @@ class BrowserWorker:
             except Exception as e:
                 return {"status": "error", "error": str(e)}
         except ImportError:
-            logger.warning("Playwright not installed, using mock browser worker.")
-            return {"status": "ok", "title": "Mock Title (Fallback)"}
+            logger.warning("Playwright not installed, trying system chrome via subprocess.")
+            chrome_paths = ["/usr/bin/google-chrome", "/snap/bin/chromium", "/usr/bin/google-chrome-stable", "/usr/bin/chromium-browser"]
+            for cp in chrome_paths:
+                if os.path.exists(cp):
+                    try:
+                        res = subprocess.run(
+                            [cp, "--headless", "--disable-gpu", "--dump-dom", url],
+                            capture_output=True, text=True, check=False, timeout=10
+                        )
+                        if res.returncode == 0:
+                            # Parse a primitive title tag
+                            title = "No Title"
+                            if "<title>" in res.stdout:
+                                title = res.stdout.split("<title>")[1].split("</title>")[0]
+                            return {"status": "ok", "title": title}
+                    except Exception as e:
+                        return {"status": "error", "error": str(e)}
+            return {"status": "error", "error": "Playwright missing and no system chrome found"}
 

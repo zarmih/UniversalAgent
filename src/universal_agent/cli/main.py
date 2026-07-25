@@ -9,7 +9,7 @@ def main():
     parser = argparse.ArgumentParser(description="Universal Agent CLI")
     subparsers = parser.add_subparsers(dest="command")
 
-    health_parser = subparsers.add_parser("health")
+    subparsers.add_parser("health")
     submit_parser = subparsers.add_parser("submit")
     submit_parser.add_argument("goal", type=str)
 

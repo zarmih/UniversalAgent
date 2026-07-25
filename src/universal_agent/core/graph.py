@@ -1,6 +1,8 @@
 import logging
 
-from .state import END, AgentState, StateGraph
+from langgraph.graph import END, StateGraph
+
+from .state import AgentState
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +34,7 @@ def verify(state: AgentState):
     logger.info("Verifying goal")
     return {"status": "succeeded"}
 
-def create_graph():
+def create_graph(checkpointer=None):
     workflow = StateGraph(AgentState)
     workflow.add_node("normalize", normalize)
     workflow.add_node("plan", plan)
@@ -51,4 +53,4 @@ def create_graph():
     workflow.add_edge("critic", "verify")
     workflow.add_edge("verify", END)
 
-    return workflow.compile()
+    return workflow.compile(checkpointer=checkpointer)
