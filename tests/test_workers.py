@@ -60,7 +60,7 @@ def test_llm_mock():
     # Assume mock endpoints would be used or we just assert initialized
     assert worker.model_name == "local-llama"
 
-def test_agy_mock():
+def test_agy_mock(tmp_path):
     worker = AgyAdapter(artifacts_dir=str(tmp_path))
     # It should be disabled by default config
     assert worker.enabled == False
