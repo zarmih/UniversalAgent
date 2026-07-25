@@ -65,7 +65,7 @@ class AgyAdapter:
             pass
 
         task_id = str(uuid.uuid4())
-        wrapped_goal = f"BEGIN_TASK_{task_id}\n{goal}\nEND_TASK_{task_id}\nWhen finished, output: COMPLETED_{task_id}"
+        wrapped_goal = f"BEGIN_TASK_{task_id}\n{goal}\nEND_TASK_{task_id}\nWhen finished, you MUST output a JSON line: {{\"task_done\": \"{task_id}\"}}"
 
         # Acquire lock
         with open(self.lock_file, "w") as f:
@@ -78,7 +78,7 @@ class AgyAdapter:
             subprocess.run(["tmux", "-L", self.socket, "send-keys", "-t", self.session, "Enter"])
 
             start_time = time.time()
-            marker = f"COMPLETED_{task_id}"
+            marker = f'"task_done": "{task_id}"'
             
             while time.time() - start_time < timeout:
                 out = self.get_output()

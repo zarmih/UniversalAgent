@@ -1,44 +1,16 @@
-# Universal Agent
+# UniversalAgent
 
-Universal local agent framework based on LangGraph, SQLite, FastAPI, and robust worker isolations.
+UniversalAgent is a highly autonomous background task orchestrator and task execution framework.
 
-## Overview
+## Features
+- **LangGraph Checkpointer**: Uses SQLite checkpointer for persisting states.
+- **Workers**:
+  - `AgyAdapter`: Proxy-aware adapter to safely run AGY tasks in a separate isolated `tmux` session.
+  - `LLMWorker`: OpenAI-compatible wrapper to use local LLM instances (e.g. Ollama).
+  - `OpenHands`: Future integration for sandbox task execution.
 
-UniversalAgent orchestrates local and containerized tasks using LangGraph. Features:
-- **Persistent State**: SQLite task and graph checkpointing (`SqliteSaver`).
-- **Security Checkpoints**: Built-in permission tiers with approval gates (`waiting_for_approval`).
-- **Safe Workers**: Pre-configured strict workers (`shell` without `shell=True`, path-traversal protected `filesystem`, etc.)
-- **Evidence Loop**: Collects task evidence (stdout, status codes, screenshots) for LLM critique.
+## Deployment
+UniversalAgent runs as a `systemd` user service.
+AGY Worker runs as `universal-agent-agy.service` but requires proxy configuration (`~/.local/share/universal-agent/agy-worker.env`).
 
-## Setup
-
-```bash
-# Initialize uv venv and deps
-uv venv
-source .venv/bin/activate
-uv pip install -r requirements.txt
-
-# Start system service
-systemctl --user start universal-agent.service
-```
-
-## CLI Usage
-
-```bash
-# Check health
-ua health
-
-# Create a task
-ua create "Find files in src/"
-
-# Run the task
-ua run <task_id>
-
-# Approve a policy gate
-ua approve <task_id>
-
-# Check status and evidence
-ua show <task_id>
-ua events <task_id>
-ua evidence <task_id>
-```
+**NOTE:** Secondary AGY worker might fail with "Eligibility check failed: Your current account is not eligible for Antigravity" based on region or auth constraints. If so, leave the worker disabled.
